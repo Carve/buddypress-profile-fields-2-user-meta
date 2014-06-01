@@ -34,6 +34,8 @@ if ( is_admin() ) {
  *
  * @param $field_id int ID of a saved field
  * @param $value string New value of a field
+ *
+ * @return bool
  */
 function bppf2um_profile_sync_field($field_id, $value){
     /** @var $wpdb WPDB */
@@ -72,6 +74,6 @@ function bppf2um_profile_sync_field($field_id, $value){
         $meta_value = $value;
     }
 
-    bp_update_user_meta( $user_id, $meta_key, $meta_value );
+    return bp_update_user_meta( $user_id, $meta_key, $meta_value );
 }
 add_action( 'xprofile_profile_field_data_updated', 'bppf2um_profile_sync_field', 10, 2 );
