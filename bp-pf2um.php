@@ -32,48 +32,46 @@ if ( is_admin() ) {
 /**
  * Make the sync from profile fields to user_meta as defined in admin area
  *
- * @param $user_id
- * @param $posted_field_ids
- * @param $errors
- * @param $old_values
- * @param $new_values
+ * @param $field_id int ID of a saved field
+ * @param $value string New value of a field
  */
-function bppf2um_profile_sync_fields($user_id, $posted_field_ids, $errors, $old_values, $new_values){
-    if ( !empty( $errors ) ) {
-        return false;
-    }
+function bppf2um_profile_sync_field($field_id, $value){
     /** @var $wpdb WPDB */
     global $wpdb, $bp;
 
-    foreach ($new_values as $field_id => $data) {
-        // get meta_key
-        $meta_key   = bp_xprofile_get_meta($field_id, 'field', 'user_meta_key');
-        $meta_value = '';
-
-        if ( empty($meta_key) ) {
-            continue;
-        }
-
-        // does this field have options?
-        $options = $wpdb->get_results( "SELECT id, name
-                                        FROM {$bp->profile->table_name_fields}
-                                        WHERE parent_id = '{$field_id}'" );
-        if ( !empty($options) ) {
-            foreach ($options as $option) {
-                // get transition value for this option
-                if ( $option->name == $data['value'] ){
-                    // get meta_value
-                    $meta_value = bp_xprofile_get_meta($option->id, 'field', 'user_meta_value');
-                    break;
-                } else {
-                    $meta_value = $data['value'];
-                }
-            }
-        } else {
-            $meta_value = $data['value'];
-        }
-
-        bp_update_user_meta( $user_id, $meta_key, $meta_value );
+    if ( is_admin() ) {
+        $user_id = (int) $_GET['user_id'];
+    } else{
+        $user_id = bp_displayed_user_id();
     }
+
+    // get meta_key
+    $meta_key   = bp_xprofile_get_meta($field_id, 'field', 'user_meta_key');
+    $meta_value = '';
+
+    if ( empty($meta_key) ) {
+        return false;
+    }
+
+    // does this field have options?
+    $options = $wpdb->get_results( "SELECT id, name
+                                    FROM {$bp->profile->table_name_fields}
+                                    WHERE parent_id = '{$field_id}'" );
+    if ( !empty($options) ) {
+        foreach ($options as $option) {
+            // get transition value for this option
+            if ( $option->name == $value ){
+                // get meta_value
+                $meta_value = bp_xprofile_get_meta($option->id, 'field', 'user_meta_value');
+                break;
+            } else {
+                $meta_value = $value;
+            }
+        }
+    } else {
+        $meta_value = $value;
+    }
+
+    bp_update_user_meta( $user_id, $meta_key, $meta_value );
 }
-add_action( 'xprofile_updated_profile', 'bppf2um_profile_sync_fields', 10, 5 );
+add_action( 'xprofile_profile_field_data_updated', 'bppf2um_profile_sync_field', 10, 2 );
