@@ -8,6 +8,9 @@ function bppf2um_admin_init() {
 }
 add_action( 'bp_init', 'bppf2um_admin_init' );
 
+/**
+ * Admin menu under Users - regardles whether this a network or ordinary WP
+ */
 function bppf2um_admin_menu(){
     add_submenu_page(
         'users.php',
@@ -126,6 +129,9 @@ function bppf2um_admin(){
     <?php
 }
 
+/**
+ * Saving mapping
+ */
 function bppf2um_admin_save(){
     if ( empty($_POST['bppf2um']) ) {
         return false;
@@ -144,3 +150,12 @@ function bppf2um_admin_save(){
     wp_redirect(add_query_arg('status', 'saved'));
     exit();
 }
+
+/**
+ * On every admin profile fields changes we need to regenerate ids
+ * Damn BuddyPress
+ */
+function test($data){
+    print_var($data,1);
+}
+add_action('xprofile_field_after_save', 'test');

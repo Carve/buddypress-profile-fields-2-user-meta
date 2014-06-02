@@ -37,15 +37,28 @@ if ( is_admin() ) {
  *
  * @return bool
  */
-function bppf2um_profile_sync_field($field_id, $value){
-    /** @var $wpdb WPDB */
-    global $wpdb, $bp;
-
+function bppf2um_profile_prepare_sync_field($field_id, $value){
     if ( is_admin() ) {
         $user_id = (int) $_GET['user_id'];
     } else{
         $user_id = bp_displayed_user_id();
     }
+
+    return bppf2um_profile_do_sync_field($user_id, $field_id, $value);
+}
+add_action( 'xprofile_profile_field_data_updated', 'bppf2um_profile_prepare_sync_field', 10, 2 );
+
+/**
+ * Actually do the sync
+ *
+ * @param $user_id
+ * @param $field_id
+ * @param $value
+ * @return bool
+ */
+function bppf2um_profile_do_sync_field($user_id, $field_id, $value){
+    /** @var $wpdb WPDB */
+    global $wpdb, $bp;
 
     // get meta_key
     $meta_key   = bp_xprofile_get_meta($field_id, 'field', 'user_meta_key');
@@ -76,4 +89,26 @@ function bppf2um_profile_sync_field($field_id, $value){
 
     return bp_update_user_meta( $user_id, $meta_key, $meta_value );
 }
-add_action( 'xprofile_profile_field_data_updated', 'bppf2um_profile_sync_field', 10, 2 );
+
+/**
+ * Save RSS feed link to usermeta after user account activation
+ *
+ * @param $user_id int
+ * @param $key string
+ * @param $user array
+ */
+function bppf2um_after_signup_fields_sync($user_id, $key, $user){
+    /** @var $wpdb WPDB */
+    global $wpdb, $bp;
+
+    // get fields from group 1 (they are on reg page)
+    $fields = $wpdb->get_col( "SELECT id FROM {$bp->profile->table_name_fields}
+                                WHERE id IN ({$user['meta']['profile_field_ids']})");
+
+    if ( !empty($fields) ) {
+        foreach ( $fields as $field_id ) {
+            bppf2um_profile_do_sync_field($user_id, $field_id, $user['meta']['field_'.$field_id]);
+        }
+    }
+}
+add_action( 'bp_core_activated_user', 'bppf2um_after_signup_fields_sync', 10, 3 );
