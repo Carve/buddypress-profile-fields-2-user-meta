@@ -150,12 +150,3 @@ function bppf2um_admin_save(){
     wp_redirect(add_query_arg('status', 'saved'));
     exit();
 }
-
-/**
- * On every admin profile fields changes we need to regenerate ids
- * Damn BuddyPress
- */
-function test($data){
-    print_var($data,1);
-}
-add_action('xprofile_field_after_save', 'test');
