@@ -1,17 +1,17 @@
 <?php
 /**
  * Plugin Name: BuddyPress Profile Fields 2 User Meta
- * Plugin URI:  https://github.com/CFCommunity-net/
+ * Plugin URI:  https://github.com/Carve/
  * Description: Sync any profile field with usermeta table
- * Version:     1.0
- * Author:      slaFFik
- * Author URI:  http://ovirium.com
+ * Version:     1.1
+ * Author:      Carve
+ * Author URI:  http://aplusmedia.org
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BPPF2UM_VERSION', '1.0' );
+define( 'BPPF2UM_VERSION', '1.1' );
 define( 'BPPF2UM_PATH',    dirname(__FILE__) ); // without /
 
 /**
