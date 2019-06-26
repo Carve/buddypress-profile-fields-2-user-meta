@@ -135,6 +135,7 @@ function bppf2um_admin(){
 function bppf2um_admin_save(){
     if ( empty($_POST['bppf2um']) ) {
         return false;
+        exit(1); // exit with failure
     }
 
     foreach($_POST['bppf2um']['fields'] as $field_id => $meta_key) {
@@ -148,5 +149,5 @@ function bppf2um_admin_save(){
     }
 
     wp_redirect(add_query_arg('status', 'saved'));
-    exit();
+    exit(0); // exit with success
 }
